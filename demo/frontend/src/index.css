@@ -1,0 +1,72 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Quill editor styles */
+.ql-editor {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.6;
+}
+
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6 {
+  margin: 1.5em 0 0.5em;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.ql-editor h1 { font-size: 2em; }
+.ql-editor h2 { font-size: 1.75em; }
+.ql-editor h3 { font-size: 1.5em; }
+.ql-editor h4 { font-size: 1.25em; }
+.ql-editor h5 { font-size: 1.1em; }
+.ql-editor h6 { font-size: 1em; }
+
+.ql-editor p {
+  margin: 1em 0;
+}
+
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+}
+
+.ql-editor blockquote {
+  border-left: 4px solid #ccc;
+  margin: 1.5em 0;
+  padding-left: 1em;
+  color: #666;
+}
+
+.ql-editor pre {
+  background: #f8f9fa;
+  border-radius: 4px;
+  padding: 1em;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+.ql-editor code {
+  background: #f8f9fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
