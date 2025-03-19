@@ -18,24 +18,21 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public User registerUser(User user) {
-        // 检查用户名和邮箱是否已存在
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("用户名已存在");
-        }
-        
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("邮箱已被注册");
-        }
-
-        // 加密密码
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User registerUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new RuntimeException("用户名已存在");
+        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("邮箱已被使用");
+        }
+        
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
     @Override

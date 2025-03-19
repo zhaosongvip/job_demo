@@ -22,10 +22,28 @@ public class PostDTO {
         dto.setId(post.getId());
         dto.setTitle(post.getTitle());
         dto.setContent(post.getContent());
-        dto.setAuthor(UserDTO.fromEntity(post.getAuthor()));
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
-        dto.setCommentCount(post.getComments().size());
+        
+        if (post.getAuthor() != null) {
+            try {
+                dto.setAuthor(UserDTO.fromEntity(post.getAuthor()));
+            } catch (Exception e) {
+                UserDTO defaultUser = new UserDTO();
+                defaultUser.setId(0L);
+                defaultUser.setUsername("Unknown User");
+                dto.setAuthor(defaultUser);
+            }
+        }
+        
+        try {
+            if (post.getComments() != null) {
+                dto.setCommentCount(post.getComments().size());
+            }
+        } catch (Exception e) {
+            dto.setCommentCount(0);
+        }
+        
         return dto;
     }
 } 

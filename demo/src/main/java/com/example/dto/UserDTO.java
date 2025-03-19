@@ -14,9 +14,15 @@ public class UserDTO {
         if (user == null) return null;
         
         UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
-        dto.setAvatar(user.getAvatar());
+        try {
+            dto.setId(user.getId());
+            dto.setUsername(user.getUsername());
+            dto.setAvatar(user.getAvatar());
+        } catch (Exception e) {
+            // 如果出现懒加载问题，返回基本信息
+            dto.setId(0L);
+            dto.setUsername("Unknown User");
+        }
         return dto;
     }
 } 

@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface PostService {
-    Page<Post> getAllPosts(Pageable pageable);
+    Page<Post> findAll(Pageable pageable);
     Post getPostById(Long id);
     Post createPost(Post post, String username);
     Post updatePost(Long id, Post postDetails, String username);

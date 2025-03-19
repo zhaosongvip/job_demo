@@ -7,22 +7,43 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
 
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
+
     @Autowired
     private PostService postService;
 
     @GetMapping
-    public ResponseEntity<Page<PostDTO>> getAllPosts(Pageable pageable) {
-        Page<Post> posts = postService.getAllPosts(pageable);
-        Page<PostDTO> postDTOs = posts.map(PostDTO::fromEntity);
-        return ResponseEntity.ok(postDTOs);
+    public ResponseEntity<Page<PostDTO>> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<Post> posts = postService.findAll(pageable);
+            Page<PostDTO> postDTOs = posts.map(post -> {
+                try {
+                    return PostDTO.fromEntity(post);
+                } catch (Exception e) {
+                    log.error("Error converting post to DTO: " + e.getMessage(), e);
+                    return null;
+                }
+            });
+            return ResponseEntity.ok(postDTOs);
+        } catch (Exception e) {
+            log.error("Error fetching posts: " + e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")

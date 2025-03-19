@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -22,13 +23,15 @@ public class PostServiceImpl implements PostService {
     private UserRepository userRepository;
 
     @Override
-    public Page<Post> getAllPosts(Pageable pageable) {
-        return postRepository.findAllByOrderByCreatedAtDesc(pageable);
+    @Transactional(readOnly = true)
+    public Page<Post> findAll(Pageable pageable) {
+        return postRepository.findAllPosts(pageable);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Post getPostById(Long id) {
-        return postRepository.findById(id)
+        return postRepository.findPostWithAuthorById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "文章不存在"));
     }
 

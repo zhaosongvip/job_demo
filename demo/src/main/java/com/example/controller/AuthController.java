@@ -1,16 +1,20 @@
 package com.example.controller;
 
 import com.example.entity.User;
+import com.example.dto.UserDTO;
 import com.example.security.JwtTokenUtil;
 import com.example.service.UserService;
+import com.example.payload.request.LoginRequest;
+import com.example.payload.response.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -31,29 +35,30 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
-        String username = loginRequest.get("username");
-        String password = loginRequest.get("password");
-
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()
+                )
             );
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = jwtTokenUtil.generateToken(username);
+            String jwt = jwtTokenUtil.generateToken(loginRequest.getUsername());
             
-            User user = userService.findByUsername(username)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "用户不存在"));
-            
+            User user = userService.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "用户不存在"));
+            UserDTO userDTO = UserDTO.fromEntity(user);
+
             Map<String, Object> response = new HashMap<>();
-            response.put("token", "Bearer " + token);
-            response.put("user", user);
+            response.put("token", jwt);
+            response.put("user", userDTO);
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "用户名或密码错误");
-            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new MessageResponse("用户名或密码错误"));
         }
     }
 
