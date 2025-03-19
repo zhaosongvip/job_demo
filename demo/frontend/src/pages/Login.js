@@ -3,6 +3,8 @@ import { TextField, Button, Typography, Box, Paper, Alert } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { setAuthToken } from '../utils/auth';
+import { useUser } from '../context/UserContext';
+import { message } from 'antd';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -11,33 +13,36 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useUser();
   
   // 获取用户之前尝试访问的页面
   const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!username || !password) {
-      setError('请填写所有字段');
-      return;
-    }
-
+    e.preventDefault(); // 阻止默认表单提交行为
+    
     try {
       setLoading(true);
-      const response = await api.post('/auth/login', { username, password });
+      setError(''); // 清除之前的错误信息
       
-      if (response.data.token) {
-        setAuthToken(response.data.token);
-        if (response.data.user) {
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-        }
-        navigate(from, { replace: true });
+      // 手动收集表单数据
+      const values = {
+        username: username,
+        password: password
+      };
+      
+      console.log('提交登录数据:', values);
+      const result = await login(values);
+      
+      if (result.success) {
+        message.success('登录成功！');
+        navigate(from, { replace: true }); // 使用之前存储的路径
       } else {
-        setError('登录失败：未收到有效的token');
+        setError(result.message);
       }
-    } catch (err) {
-      setError(err.response?.data?.message || '登录失败');
-      console.error('登录错误:', err);
+    } catch (error) {
+      console.error('登录错误:', error);
+      setError(error.message || '登录失败，请稍后再试');
     } finally {
       setLoading(false);
     }

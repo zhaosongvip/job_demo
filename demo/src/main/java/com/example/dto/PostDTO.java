@@ -3,15 +3,21 @@ package com.example.dto;
 import com.example.entity.Post;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class PostDTO {
     private Long id;
     private String title;
     private String content;
-    private UserDTO author;
+    private String summary;
+    private Long authorId;
+    private String authorName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<String> tags;
+    private String coverImage;
+    private UserDTO author;
     private int commentCount;
 
     // 构造函数、getter和setter

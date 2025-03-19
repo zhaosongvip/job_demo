@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
+import axios from 'axios';
 
 const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { register } = useUser();
 
   const onFinish = async (values) => {
     try {
@@ -21,17 +20,41 @@ const Register = () => {
         email: values.email
       };
       
-      const result = await register(requestData);
+      console.log('发送注册请求数据:', JSON.stringify(requestData));
       
-      if (result.success) {
-        message.success('注册成功！');
-        navigate('/');
-      } else {
-        message.error(result.message);
-      }
+      const response = await axios.post(
+        'http://localhost:8080/api/auth/register', 
+        requestData, 
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('注册响应:', response);
+      localStorage.setItem('token', response.data.token);
+      message.success('注册成功！');
+      navigate('/');
     } catch (error) {
       console.error('注册错误:', error);
-      message.error('注册失败: ' + error.message);
+      
+      let errorMessage = '注册失败';
+      if (error.response) {
+        if (error.response.data) {
+          if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response.data.confirmPassword) {
+            errorMessage = error.response.data.confirmPassword;
+          } else {
+            errorMessage = JSON.stringify(error.response.data);
+          }
+        }
+      } else {
+        errorMessage = error.message;
+      }
+      
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }

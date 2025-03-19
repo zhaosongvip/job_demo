@@ -13,6 +13,21 @@ api.interceptors.request.use(config => {
   return config;
 });
 
+export const authApi = {
+  register: (userData) => {
+    // 确保所有字段都被正确传递
+    const requestData = {
+      username: userData.username,
+      password: userData.password,
+      confirmPassword: userData.confirmPassword,  // 确保这个字段被包含
+      email: userData.email
+    };
+    console.log('注册请求数据:', requestData); // 添加日志
+    return api.post('/auth/register', requestData);
+  },
+  login: (credentials) => api.post('/auth/login', credentials)
+};
+
 export const aiApi = {
   generateSummary: (content) => api.post('/ai/summary', content),
   suggestTags: (content) => api.post('/ai/tags', content),

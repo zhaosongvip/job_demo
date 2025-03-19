@@ -25,10 +25,11 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String summary;
 
+    @Column
     private String tags;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -40,6 +41,9 @@ public class Post {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "cover_image")
+    private String coverImage;
 
     @PrePersist
     protected void onCreate() {
