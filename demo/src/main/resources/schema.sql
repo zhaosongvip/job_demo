@@ -16,6 +16,7 @@ CREATE TABLE posts (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
+    cover_image VARCHAR(200),
     summary TEXT,
     tags VARCHAR(500),
     author_id BIGINT,
