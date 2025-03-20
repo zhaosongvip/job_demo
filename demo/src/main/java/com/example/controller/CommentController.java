@@ -1,52 +1,51 @@
 package com.example.controller;
 
 import com.example.dto.CommentDTO;
-import com.example.entity.Comment;
+import com.example.payload.request.CommentRequest;
 import com.example.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/posts/{postId}/comments")
+@RequestMapping("/api/comments")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class CommentController {
 
     @Autowired
     private CommentService commentService;
 
-    @GetMapping
-    public ResponseEntity<Page<CommentDTO>> getComments(
-            @PathVariable Long postId,
-            Pageable pageable) {
-        Page<Comment> comments = commentService.getCommentsByPostId(postId, pageable);
-        return ResponseEntity.ok(comments.map(CommentDTO::fromEntity));
+    // 获取文章评论
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@PathVariable Long postId) {
+        List<CommentDTO> comments = commentService.getCommentsByPostId(postId);
+        return ResponseEntity.ok(comments);
     }
 
+    // 添加评论
     @PostMapping
-    public ResponseEntity<CommentDTO> createComment(
-            @PathVariable Long postId,
-            @RequestBody Comment comment,
-            Authentication authentication) {
-        if (postId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "文章ID不能为空");
-        }
+    @Transactional  // 确保在整个方法执行期间会话保持打开
+    public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CommentRequest commentRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        Comment createdComment = commentService.createComment(postId, comment, username);
-        return ResponseEntity.ok(CommentDTO.fromEntity(createdComment));
+        
+        CommentDTO commentDTO = commentService.createComment(commentRequest, username);
+        return ResponseEntity.ok(commentDTO);
     }
 
-    @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> deleteComment(
-            @PathVariable Long postId,
-            @PathVariable Long commentId,
-            Authentication authentication) {
+    // 删除评论
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        commentService.deleteComment(commentId, username);
+        
+        commentService.deleteComment(id, username);
         return ResponseEntity.ok().build();
     }
 } 

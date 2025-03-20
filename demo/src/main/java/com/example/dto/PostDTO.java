@@ -1,9 +1,11 @@
 package com.example.dto;
 
 import com.example.entity.Post;
+import com.example.entity.User;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Arrays;
 
 @Data
 public class PostDTO {
@@ -28,12 +30,28 @@ public class PostDTO {
         dto.setId(post.getId());
         dto.setTitle(post.getTitle());
         dto.setContent(post.getContent());
+        dto.setSummary(post.getSummary());
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
+        dto.setCoverImage(post.getCoverImage());
         
-        if (post.getAuthor() != null) {
+        // 处理标签
+        if (post.getTags() != null && !post.getTags().isEmpty()) {
+            dto.setTags(Arrays.asList(post.getTags().split(",")));
+        }
+        
+        // 设置作者信息
+        User author = post.getAuthor();
+        if (author != null) {
+            dto.setAuthorId(author.getId());
+            dto.setAuthorName(author.getUsername());
+            
             try {
-                dto.setAuthor(UserDTO.fromEntity(post.getAuthor()));
+                UserDTO authorDTO = new UserDTO();
+                authorDTO.setId(author.getId());
+                authorDTO.setUsername(author.getUsername());
+                authorDTO.setAvatar(author.getAvatar());
+                dto.setAuthor(authorDTO);
             } catch (Exception e) {
                 UserDTO defaultUser = new UserDTO();
                 defaultUser.setId(0L);
@@ -42,6 +60,7 @@ public class PostDTO {
             }
         }
         
+        // 评论数量
         try {
             if (post.getComments() != null) {
                 dto.setCommentCount(post.getComments().size());

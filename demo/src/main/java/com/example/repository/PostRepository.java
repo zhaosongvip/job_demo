@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllPosts(Pageable pageable);
     
     // 获取单个帖子时使用 JOIN FETCH
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.author WHERE p.id = ?1")
+    @Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.id = ?1")
     Optional<Post> findPostWithAuthorById(Long id);
     
     @Query(value = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.author WHERE p.author = ?1",
@@ -27,4 +27,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByAuthor(User author, Pageable pageable);
 
     List<Post> findByAuthorId(Long authorId, Pageable pageable);
+
+    // 修复：为JOIN FETCH查询添加countQuery
+    @Query(value = "SELECT p FROM Post p JOIN FETCH p.author",
+           countQuery = "SELECT COUNT(p) FROM Post p")
+    Page<Post> findAllWithAuthor(Pageable pageable);
 } 
