@@ -1,11 +1,24 @@
 package com.example.service;
 
-import com.example.entity.Comment;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.example.dto.CommentDTO;
+import com.example.payload.request.CommentRequest;
+
+import java.util.List;
 
 public interface CommentService {
-    Page<Comment> getCommentsByPostId(Long postId, Pageable pageable);
-    Comment createComment(Long postId, Comment comment, String username);
-    void deleteComment(Long commentId, String username);
+    
+    /**
+     * 获取文章的评论列表
+     */
+    List<CommentDTO> getCommentsByPostId(Long postId);
+    
+    /**
+     * 创建评论
+     */
+    CommentDTO createComment(CommentRequest commentRequest, String username);
+    
+    /**
+     * 删除评论
+     */
+    void deleteComment(Long id, String username);
 } 

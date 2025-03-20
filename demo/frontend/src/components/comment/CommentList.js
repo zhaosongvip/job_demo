@@ -3,20 +3,13 @@ import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Divid
 import { formatDate } from '../../utils/formatDate';
 
 function CommentList({ comments }) {
-  // 检查comments是否是分页数据
-  const commentList = comments?.content || [];
-
-  if (!commentList.length) {
-    return (
-      <Typography variant="body2" color="textSecondary" sx={{ py: 2 }}>
-        暂无评论
-      </Typography>
-    );
+  if (!comments || comments.length === 0) {
+    return <p>暂无评论</p>;
   }
-
+  
   return (
     <List>
-      {commentList.map((comment, index) => (
+      {comments.map((comment, index) => (
         <React.Fragment key={comment.id}>
           <ListItem alignItems="flex-start">
             <ListItemAvatar>
@@ -51,7 +44,7 @@ function CommentList({ comments }) {
               }
             />
           </ListItem>
-          {index < commentList.length - 1 && <Divider variant="inset" component="li" />}
+          {index < comments.length - 1 && <Divider variant="inset" component="li" />}
         </React.Fragment>
       ))}
     </List>

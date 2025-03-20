@@ -1,6 +1,7 @@
 package com.example.service.impl;
 
 import com.example.dto.PostDTO;
+import com.example.dto.UserDTO;
 import com.example.entity.Post;
 import com.example.entity.User;
 import com.example.exception.ResourceNotFoundException;
@@ -33,14 +34,14 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public Page<PostDTO> getAllPosts(Pageable pageable) {
         logger.info("获取所有文章，页码: {}, 大小: {}", pageable.getPageNumber(), pageable.getPageSize());
-        return postRepository.findAll(pageable).map(this::convertToDTO);
+        return postRepository.findAllPosts(pageable).map(this::convertToDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PostDTO getPostById(Long id) {
         logger.info("根据ID获取文章: {}", id);
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findPostWithAuthorById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("文章不存在，ID: " + id));
         return convertToDTO(post);
     }
@@ -140,12 +141,24 @@ public class PostServiceImpl implements PostService {
         dto.setTitle(post.getTitle());
         dto.setContent(post.getContent());
         dto.setSummary(post.getSummary());
-        dto.setAuthorId(post.getAuthor().getId());
-        dto.setAuthorName(post.getAuthor().getUsername());
+        
+        // 确保作者信息正确设置
+        if (post.getAuthor() != null) {
+            dto.setAuthorId(post.getAuthor().getId());
+            dto.setAuthorName(post.getAuthor().getUsername());
+            
+            // 如果PostDTO包含完整的author对象，则也设置它
+            UserDTO authorDTO = new UserDTO();
+            authorDTO.setId(post.getAuthor().getId());
+            authorDTO.setUsername(post.getAuthor().getUsername());
+            authorDTO.setAvatar(post.getAuthor().getAvatar());
+            dto.setAuthor(authorDTO);
+        }
+        
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
         
-        // 处理标签 - 使用Arrays.asList代替List.of
+        // 处理标签
         if (post.getTags() != null && !post.getTags().isEmpty()) {
             dto.setTags(Arrays.asList(post.getTags().split(",")));
         }

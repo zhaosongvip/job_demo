@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class CommentDTO {
     private Long id;
     private String content;
+    private Long postId;
     private UserDTO user;
     private LocalDateTime createdAt;
 
@@ -15,8 +16,25 @@ public class CommentDTO {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());
         dto.setContent(comment.getContent());
-        dto.setUser(UserDTO.fromEntity(comment.getUser()));
+        dto.setPostId(comment.getPost().getId());
         dto.setCreatedAt(comment.getCreatedAt());
+        
+        try {
+            // 创建嵌套的UserDTO对象
+            if (comment.getUser() != null) {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setId(comment.getUser().getId());
+                userDTO.setUsername(comment.getUser().getUsername());
+                userDTO.setAvatar(comment.getUser().getAvatar());
+                dto.setUser(userDTO);
+            }
+        } catch (Exception e) {
+            // 处理延迟加载异常
+            UserDTO userDTO = new UserDTO();
+            userDTO.setUsername("未知用户");
+            dto.setUser(userDTO);
+        }
+        
         return dto;
     }
 } 
