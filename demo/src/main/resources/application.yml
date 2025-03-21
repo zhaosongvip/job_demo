@@ -50,5 +50,5 @@ jackson:
 
 openai:
   api:
-    key: ${OPENAI_API_KEY:hk-433b5g1000034436f01f7a8e467af1c7bb77d74d4672f2ad}
+    key: ${OPENAI_API_KEY:hk-xxx}
     url: ${OPENAI_API_URL:https://api.openai-hk.com/v1/chat/completions}
